@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная страница</title>
+</head>
+<style>
+*{margin: 0;}
+a{
+    text-decoration: none;
+    color: black;
+}
+.elem a{text-align: center;}
+header{display: flex; flex-direction: row; background-color: #c0c0c0;}
+header label{
+    padding: 5px;
+}
+header label:hover{
+background-color: #000080;
+color: white;
+}
+#top_block{
+    margin: 4px;
+    background-color: #c0c0c0;
+    border: 1px solid black;
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+}
+li{
+ list-style-type: none;
+ padding: 3px;
+ border-bottom: 1px solid black;
+ }
+li:hover{
+background-color: #000080;
+color: white;
+}
+label:hover a{
+color: white;
+}
+ ul {
+    padding-left: 0; list-style: none;
+    margin-left: 0; /* Отступ слева в браузере IE и Opera */
+    padding-left: 0; /* Отступ слева в браузере Firefox, Safari, Chrome */
+   }
+    table{
+    width: 100%
+    }
+    tr{
+    width: 100%;
+    }
+    img{width: 23px;}
+    #name{width: 60%;}
+    input[type='checkbox']{
+    margin-left: -10px;
+    margin-bottom: -5px;
+    }
+    .in_name{
+    align-items: center;
+        text-align: center;
+        display: flex; flex-direction: row;
+    }
+    .in_name a{
+        margin-left: 10px;
+        height: 100%;
+    }
+    .new_dial{
+    visibility: hidden;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid black;
+    background-color: #c0c0c0;
+    padding: 1px;
+    border-radius: 2px;
+    }
+</style>
+<script>var selected_ = [];</script>
+<body>
+<form class="new_dial" id="new_fldr_dial" action="/new_fldr" method="post">
+    <label style="display: flex; flex-direction: row; align-items: center; background-color: #000080; color: white; padding: 3px;"><img src="/static/imgs/folder_ico.png" style="width: 20px;">Новая папка</label>
+    <label style="display: flex; flex-direction: column; padding: 10px;">Имя папки<input type="text" name="folder_name" placeholder="Новая папка"></label>
+    <div id="diag_buttons" style="display: flex; flex-direction: row; justify-content: space-around; padding: 5px;"><input type="submit" value="Ок"><input type="button" value="Отмена" onclick="document.getElementById('new_fldr_dial').style.visibility = 'hidden'"></div>
+</form>
+<form class="new_dial" id="rn_fldr_dial" action="/ren_fldr" method="post">
+    <label style="display: flex; flex-direction: row; align-items: center; background-color: #000080; color: white; padding: 3px;"><img src="/static/imgs/folder_ico.png" style="width: 20px;">Переименовать папку</label>
+    <label style="display: flex; flex-direction: column; padding: 10px;"><input type="text" name="folder_name" placeholder="Новое имя"></label>
+    <input type="text" name="folder_id" id="inp_fldr_id" style="display: none">
+    <div id="diag_buttons" style="display: flex; flex-direction: row; justify-content: space-around; padding: 5px;"><input type="submit" value="Ок"><input type="button" value="Отмена" onclick="document.getElementById('rn_fldr_dial').style.visibility = 'hidden'"></div>
+</form>
+
+<header>
+    <label class="elem"><a href="/logout">Выйти</a></label>
+    <label class="elem" id="menu_elem"  style="display: relative;"><a onclick="show_edit()">Редактирование</a>
+                <ul id="top_block">
+                <li onclick="document.getElementById('new_fldr_dial').style.visibility = 'visible'">Новая папка</li>
+                <li onclick="if(selected_.length != 1){alert('Выберите одну папку.'); return 0;}document.getElementById('rn_fldr_dial').style.visibility = 'visible'">Переименовановать</li>
+                <li onclick="delete_items_()">Удалить выделеные папки</li>
+                <ul>
+    </label>
+</header>
+    <div id="table_div" style="width: 100%; height: 100%;">
+        <table border="1" style="border-collapse: collapse;">
+            <tr>
+                <td id="name">Имя</td>
+                <td id="size">Размер</td>
+                <td id="type">Тип</td>
+            </tr>
+            {%for item in folders%}
+            <tr>
+                <td id="name"><div class="in_name"><img src="/static/imgs/folder_ico.png"><input type="checkbox" name="folder_sel" value="{{item.id}}"><a style="height: 100%;" href="{{item.id}}">{{item.name}}</a></div></td>
+                <td id="size">---</td>
+                <td id="type">Папка с файлами</td>
+            </tr>
+            {%endfor%}
+        </table>
+    </div>
+</body>
+<script>
+    document.getElementById('table_div').onchange = function(){
+    var elemnts_ = document.getElementsByName('folder_sel');
+    selected_ = [];
+
+    for (var i = 0; i < elemnts_.length; i++){
+       if(elemnts_[i].checked){
+           selected_.push(elemnts_[i].value);
+       }
+    }
+    console.log(selected_);
+    if(selected_.length == 1){
+            document.getElementById('inp_fldr_id').value = selected_[0];
+        }
+    }
+
+    function show_edit(){
+        var top_block = document.getElementById('top_block');
+        if(top_block.style.visibility == "visible"){
+        top_block.style.visibility = "hidden";
+        }
+        else{
+        top_block.style.visibility = "visible";
+        }
+    }
+
+    function delete_items_(){
+        let data = []
+        for(var i = 0; i<selected_.length; i++){
+            data.push({id:selected_[i]})
+        }
+        console.log(data)
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/del_fldr");
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        let json = JSON.stringify(data);
+        xhr.send(json);
+
+         xhr.onload = function() {
+            if (xhr.status != 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+                 alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+            } else { // если всё прошло гладко, выводим результат
+                alert(`Удалено`); // response -- это ответ сервера
+                selected = [];
+                location.reload();
+            }
+         };
+
+        xhr.onerror = function() { // происходит, только когда запрос совсем не получилось выполнить
+            alert(`Ошибка соединения`);
+        };
+
+    }
+
+</script>
+</html>

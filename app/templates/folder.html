@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+</head>
+<style>
+    *{margin: 0;}
+a{
+    text-decoration: none;
+    color: black;
+}
+.elem a{text-align: center;}
+header{display: flex; flex-direction: row; background-color: #c0c0c0;}
+header label{
+    padding: 5px;
+}
+header label:hover{
+background-color: #000080;
+color: white;
+}
+#top_block{
+    margin: 4px;
+    background-color: #c0c0c0;
+    border: 1px solid black;
+    visibility: hidden;
+    position: absolute;
+    z-index: 1;
+}
+li{
+ list-style-type: none;
+ padding: 3px;
+ border-bottom: 1px solid black;
+ }
+li:hover{
+background-color: #000080;
+color: white;
+}
+label:hover a{
+color: white;
+}
+ ul {
+    padding-left: 0; list-style: none;
+    margin-left: 0; /* Отступ слева в браузере IE и Opera */
+    padding-left: 0; /* Отступ слева в браузере Firefox, Safari, Chrome */
+   }
+.new_dial{
+    background-color: white;
+    visibility: hidden;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 1px solid black;
+    padding: 1px;
+    border-radius: 2px;
+    }
+#wrapper{
+align-items: stretch;
+width: 100%;
+display: flex;
+flex-direction: row;
+height: 90vh;
+}
+#sideBar{
+
+width: 20%;
+display: flex;
+flex-direction: column;
+background-color: #c0c0c0;
+height: 100%;
+}
+#content{
+width: 80%;
+display: flex;
+flex-direction: column;
+background-color: #c0c0c0;
+}
+#sideBcont{
+height: 96%;
+display: flex;
+flex-direction: column;
+background-color: white;
+border: 1px solid black;
+margin: 3px;
+overflow-y: scroll;
+}
+#sideBcont img{
+
+width: 25px;
+}
+#sideBcont a{
+padding: 2px;
+align-items: center;
+        text-align: center;
+        display: flex; flex-direction: row;
+}
+#sideBcont a:hover{
+background-color: #000080;
+color: white;
+}
+table{
+width: 100%;
+}
+#name{
+width:60%;
+}
+#type{
+width:20%;
+}
+#namein{
+width:62%;
+}
+#typein{
+width:19%;
+}
+</style>
+<body>
+<script>var selected_ = [];</script>
+<header>
+    <label class="elem"><a href="/logout">Выйти</a></label>
+    <label class="elem" id="menu_elem"  style="display: relative;"><a onclick="show_edit()">Редактирование</a>
+                <ul id="top_block">
+                <li onclick="document.getElementById('new_fldr_dial').style.visibility = 'visible'">Добавить файл</li>
+                <li onclick="if(selected_.length != 1){alert('Выберите одну папку.'); return 0;} document.getElementById('rn_fldr_dial').style.visibility = 'visible'">Переименовановать</li>
+                <li onclick="delete_items_()">Удалить выделеные файлы</li>
+                </ul>
+    </label>
+    <label class="elem"><a href="/">Назад</a></label>
+</header>
+
+<form class="new_dial" id="new_fldr_dial" action="/{{id}}/upl_files" method="post" enctype="multipart/form-data">
+    <label style="display: flex; flex-direction: row; align-items: center; background-color: #000080; color: white; padding: 3px;"><img src="/static/imgs/FOLDER04.ico" style="width: 20px; padding-right: 2px;">Новый файл</label>
+    <label style="display: flex; flex-direction: column; padding: 10px;">Выберите файл/ы<input type="file" name="files" multiple="multiple"></label>
+    <div id="diag_buttons" style="display: flex; flex-direction: row; justify-content: space-around; padding: 5px;"><input type="submit" value="Ок"><input type="button" value="Отмена" onclick="document.getElementById('new_fldr_dial').style.visibility = 'hidden'"></div>
+</form>
+
+<form class="new_dial" id="rn_fldr_dial" action="/{{id}}/rn_file" method="post">
+    <label style="display: flex; flex-direction: row; align-items: center; background-color: #000080; color: white; padding: 3px;"><img src="/static/imgs/folder_ico.png" style="width: 20px;">Переименовать папку</label>
+    <label style="display: flex; flex-direction: column; padding: 10px;"><input type="text" name="file_name" placeholder="Новое имя" id="n_n_inp"></label>
+    <input type="text" name="file_id" id="inp_fldr_id" style="display: none">
+    <div id="diag_buttons" style="display: flex; flex-direction: row; justify-content: space-around; padding: 5px;"><input type="submit" value="Ок"><input type="button" value="Отмена" onclick="document.getElementById('rn_fldr_dial').style.visibility = 'hidden'"></div>
+</form>
+
+<div id="wrapper">
+    <div id="sideBar">
+        <label style="border: 1px solid #989898; padding: 5px; margin: 3px;">Все папки в профиле</label>
+        <div id="sideBcont">
+            {%for item in folders%}
+            {%if item.id == id%}
+                <a href="/{{item.id}}" id="selected_elem" style="color: white; background-color: #000080;"><img src="/static/imgs/folder_ico.png">{{item.name}}</a>
+            {%else%}
+                <a href="/{{item.id}}"><img src="/static/imgs/folder_ico.png">{{item.name}}</a>
+            {%endif%}
+            {%endfor%}
+        </div>
+    </div>
+    <div id="content">
+        <label style="border: 1px solid #989898; padding: 5px; margin: 3px;" id="text_cap_folder">Содержимое папки NAME</label>
+        <div style="margin: 3px; border: 1px solid black; height: 100%;" >
+           <table border="1" style="border-collapse: collapse;" >
+               <tr>
+                   <td id="name">Имя</td>
+                   <td>Размер</td>
+                   <td id="type">Тип</td>
+               </tr>
+           </table>
+            <div style="background-color: white; overflow-y: scroll; height: 97%;">
+            <table style="border-collapse: collapse;" id="table_cont">
+                {%for item in files%}
+               <tr>
+                   <td id="namein"><input type="checkbox" name="fileid" value="{{item.id}}"><a onclick="window.open('/{{id}}/{{item.id}}', '_blank')" >{{item.name}}</a></td>
+                   <td></td>
+                   <td id="typein">{{item.ext}}</td>
+               </tr>
+                {%endfor%}
+           </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</body>
+<script>
+document.getElementById('table_cont').onchange = function(){
+    var elemnts_ = document.getElementsByName('fileid');
+    selected_ = [];
+
+    for (var i = 0; i < elemnts_.length; i++){
+       if(elemnts_[i].checked){
+           selected_.push(elemnts_[i].value);
+       }
+    }
+    console.log(selected_);
+    if(selected_.length == 1){
+            document.getElementById('inp_fldr_id').value = selected_[0];
+        }
+    }
+
+    document.getElementById('text_cap_folder').innerHTML = "Содержимое папки \""+document.getElementById('selected_elem').innerHTML.replace(/<img[^>]*>/g, '')+"\"";
+    function show_edit(){
+        var top_block = document.getElementById('top_block');
+        if(top_block.style.visibility == "visible"){
+        top_block.style.visibility = "hidden";
+        }
+        else{
+        top_block.style.visibility = "visible";
+        }
+    }
+    function delete_items_(){
+        let data = []
+        for(var i = 0; i<selected_.length; i++){
+            data.push({id:selected_[i]})
+        }
+        console.log(data)
+        let xhr = new XMLHttpRequest();
+        xhr.open("POST", "/{{id}}/del_files");
+        xhr.setRequestHeader("Accept", "application/json");
+        xhr.setRequestHeader("Content-Type", "application/json");
+
+        let json = JSON.stringify(data);
+        xhr.send(json);
+
+         xhr.onload = function() {
+            if (xhr.status != 200) { // анализируем HTTP-статус ответа, если статус не 200, то произошла ошибка
+                 alert(`Ошибка ${xhr.status}: ${xhr.statusText}`); // Например, 404: Not Found
+            } else { // если всё прошло гладко, выводим результат
+                alert(`Удалено`); // response -- это ответ сервера
+                selected = [];
+                location.reload();
+            }
+         };
+
+        xhr.onerror = function() { // происходит, только когда запрос совсем не получилось выполнить
+            alert(`Ошибка соединения`);
+        };
+
+    }
+</script>
+</html>

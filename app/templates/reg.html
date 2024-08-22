@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Регистрация</title>
+</head>
+<style>
+    .label{display: flex; flex-direction: column;}
+    *{font-size: 18px;}
+</style>
+<body>
+<form method="post" action="/reg" style="display: flex; flex-direction: column;position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 1px solid black; border-radius: 3px;">
+    <h1 style="display: flex; flex-direction: row; background-color: #000080; color: white; margin: 2px; padding: 3px;"><img style="width: 25px;" src="/static/imgs/FILES03B.ico">Регистрация</h1>
+   <div style="padding: 5px;">
+       <label class="label"><strong>Логин</strong><input type="text" name="login" required></label>
+    <label class="label"><strong>Пароль</strong><input type="password" name="password" required></label>
+    <label class="label"><strong>Повторите пароль</strong><input type="password" name="agn_password" required></label>
+    <div style="text-align: center; padding-top: 5px;"><input style="width: 50%; margin: 0 auto; display: block; text-align: center;" type="submit" value="Войти"></div>
+       </div>
+</form>
+</body>
+</html>
